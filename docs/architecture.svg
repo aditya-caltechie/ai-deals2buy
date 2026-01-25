@@ -22,8 +22,8 @@
 
   <rect x="0" y="0" width="1200" height="720" fill="#FFFFFF"/>
 
-  <text x="40" y="48" class="title">ai-deals2buy  architecture</text>
-  <text x="40" y="72" class="subtitle">Gradio UI ’ DealAgentFramework ’ planner ’ agents ’ notifications (with ChromaDB + Modal + LLM providers)</text>
+  <text x="40" y="48" class="title">ai-deals2buy - architecture</text>
+  <text x="40" y="72" class="subtitle">Gradio UI -&gt; DealAgentFramework -&gt; planner -&gt; agents -&gt; notifications (with ChromaDB + Modal + LLM providers)</text>
 
   <!-- Panels -->
   <rect x="40" y="100" width="360" height="160" class="panel"/>
@@ -66,13 +66,13 @@
 
   <rect x="60" y="415" width="320" height="110" class="node"/>
   <text x="80" y="445" class="box-title">EnsembleAgent</text>
-  <text x="80" y="466" class="box-text">Preprocess ’ Specialist ’ Frontier(RAG) ’ combine</text>
+  <text x="80" y="466" class="box-text">Preprocess -&gt; Specialist -&gt; Frontier (RAG) -&gt; combine</text>
   <text x="80" y="487" class="box-text">0.8 * frontier + 0.2 * specialist</text>
   <text x="80" y="508" class="box-text">src/agents/ensemble_agent.py</text>
 
   <rect x="60" y="540" width="320" height="70" class="node"/>
   <text x="80" y="570" class="box-title">MessagingAgent</text>
-  <text x="80" y="591" class="box-text">Craft copy (LLM) ’ send push (Pushover)</text>
+  <text x="80" y="591" class="box-text">Craft copy (LLM) -&gt; send push (Pushover)</text>
 
   <!-- Storage nodes -->
   <rect x="440" y="470" width="320" height="80" class="node-storage"/>
@@ -81,29 +81,29 @@
 
   <rect x="440" y="565" width="320" height="90" class="node-storage"/>
   <text x="460" y="595" class="box-title">ChromaDB (Persistent)</text>
-  <text x="460" y="616" class="box-text">products_vectorstore/ " collection: products</text>
+  <text x="460" y="616" class="box-text">products_vectorstore/ - collection: products</text>
   <text x="460" y="637" class="box-text">Used for RAG + UI 3D plot</text>
 
   <!-- External nodes -->
   <rect x="820" y="145" width="320" height="80" class="node-external"/>
-  <text x="840" y="175" class="box-title">OpenAI  deal selection</text>
+  <text x="840" y="175" class="box-title">OpenAI - deal selection</text>
   <text x="840" y="196" class="box-text">model: gpt-5-mini (ScannerAgent)</text>
 
   <rect x="820" y="240" width="320" height="95" class="node-external"/>
-  <text x="840" y="270" class="box-title">OpenAI  frontier pricing (RAG)</text>
+  <text x="840" y="270" class="box-title">OpenAI - frontier pricing (RAG)</text>
   <text x="840" y="291" class="box-text">model: gpt-5.1 (FrontierAgent)</text>
   <text x="840" y="312" class="box-text">Context includes 5 similar products from Chroma</text>
 
   <rect x="820" y="350" width="320" height="80" class="node-external"/>
-  <text x="840" y="380" class="box-title">Modal  specialist pricing</text>
+  <text x="840" y="380" class="box-title">Modal - specialist pricing</text>
   <text x="840" y="401" class="box-text">Fine-tuned Llama 3.2 3B via PEFT</text>
 
   <rect x="820" y="445" width="320" height="80" class="node-external"/>
-  <text x="840" y="475" class="box-title">Ollama (local)  preprocessing</text>
-  <text x="840" y="496" class="box-text">via LiteLLM " default: ollama/llama3.2</text>
+  <text x="840" y="475" class="box-title">Ollama (local) - preprocessing</text>
+  <text x="840" y="496" class="box-text">via LiteLLM; default: ollama/llama3.2</text>
 
   <rect x="820" y="540" width="320" height="110" class="node-external"/>
-  <text x="840" y="570" class="box-title">Groq + Pushover  notification</text>
+  <text x="840" y="570" class="box-title">Groq + Pushover - notification</text>
   <text x="840" y="591" class="box-text">Groq via LiteLLM: gpt-oss-20b (copy)</text>
   <text x="840" y="612" class="box-text">Pushover API: push delivery</text>
   <text x="840" y="633" class="box-text">src/agents/messaging_agent.py</text>
@@ -137,7 +137,6 @@
   <text x="560" y="585" class="arrow-label">notify</text>
 
   <path class="arrow" marker-end="url(#arrowhead)" d="M 600 240 L 600 470"/>
-  <path class="arrow" marker-end="url(#arrowhead)" d="M 600 470 L 600 470"/>
 
   <path class="arrow" marker-end="url(#arrowhead)" d="M 600 240 L 600 510"/>
   <text x="612" y="505" class="arrow-label">persist</text>
