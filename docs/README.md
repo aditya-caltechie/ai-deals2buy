@@ -20,6 +20,8 @@ Rendered image (GitHub-friendly):
 
 ![Architecture diagram](architecture.svg)
 
+![Agent workflow](Agent%20workflow.svg)
+
 ```mermaid
 flowchart TD
   %% GitHub Mermaid tip: avoid HTML <br/> in labels; use \n instead.
