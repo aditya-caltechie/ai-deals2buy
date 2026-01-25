@@ -17,37 +17,67 @@ The app is a periodic **deal-hunting agent system**:
 ### High-level architecture (Mermaid)
 
 ```mermaid
-flowchart TB
-  UI[Gradio UI<br/>src/price_is_right.py] -->|startup + every 5 minutes| F[DealAgentFramework<br/>src/deal_agent_framework.py]
-  F -->|loads/stores| M[memory.json]
-  F -->|opens| C[(ChromaDB PersistentClient<br/>products_vectorstore/)]
-  F -->|selects planner| P{PLANNER_MODE}
+flowchart TD
+  %% GitHub Mermaid tip: avoid HTML <br/> in labels; use \n instead.
 
-  P -->|workflow| W[PlanningAgent<br/>src/agents/planning_agent.py]
-  P -->|autonomous tool-loop| A[AutonomousPlanningAgent<br/>src/agents/autonomous_planning_agent.py]
+  subgraph UI["User Interface"]
+    UI_APP["Gradio UI\nsrc/price_is_right.py"]
+  end
 
-  W --> S[ScannerAgent<br/>src/agents/scanner_agent.py]
-  A -->|tool: scan_the_internet_for_bargains| S
-  S -->|RSS scrape + OpenAI structured output| OAI1[(OpenAI<br/>gpt-5-mini)]
-  S --> D[DealSelection (5 deals)]
+  subgraph CORE["Orchestration"]
+    F["DealAgentFramework\nsrc/deal_agent_framework.py"]
+    P{"PLANNER_MODE\nworkflow | autonomous"}
+  end
 
-  W --> E[EnsembleAgent<br/>src/agents/ensemble_agent.py]
-  A -->|tool: estimate_true_value| E
-  E --> PP[Preprocessor (LiteLLM)<br/>ollama/llama3.2 default]
-  E --> SA[SpecialistAgent (Modal)<br/>fine-tuned Llama 3.2 3B]
-  E --> FA[FrontierAgent (RAG + OpenAI)<br/>gpt-5.1]
-  FA -->|vector search| C
-  FA -->|LLM price estimate| OAI2[(OpenAI<br/>gpt-5.1)]
+  subgraph STORAGE["State / Storage"]
+    MEM["memory.json\n(previous opportunities)"]
+    CHROMA[("ChromaDB\nproducts_vectorstore/\ncollection: products")]
+  end
 
-  E --> OP[Opportunity: deal + estimate + discount]
+  subgraph AGENTS["Agents"]
+    W["PlanningAgent\nsrc/agents/planning_agent.py"]
+    A["AutonomousPlanningAgent\nsrc/agents/autonomous_planning_agent.py"]
+    S["ScannerAgent\nsrc/agents/scanner_agent.py"]
+    E["EnsembleAgent\nsrc/agents/ensemble_agent.py"]
+    PP["Preprocessor (LiteLLM)\ndefault: ollama/llama3.2"]
+    SA["SpecialistAgent (Modal)\nfine-tuned Llama 3.2 3B"]
+    FA["FrontierAgent (RAG + OpenAI)\nmodel: gpt-5.1"]
+    MSG["MessagingAgent\nsrc/agents/messaging_agent.py"]
+    OP["Opportunity\n(deal + estimate + discount)"]
+  end
 
-  W -->|if discount > threshold| MSG[MessagingAgent<br/>src/agents/messaging_agent.py]
-  A -->|tool: notify_user_of_deal| MSG
-  MSG -->|craft copy| GROQ[(Groq via LiteLLM<br/>gpt-oss-20b)]
-  MSG -->|send| PO[Pushover API]
+  subgraph EXTERNAL["External services / models"]
+    OAI_SCAN[("OpenAI\nmodel: gpt-5-mini")]
+    OAI_PRICE[("OpenAI\nmodel: gpt-5.1")]
+    GROQ[("Groq via LiteLLM\nmodel: gpt-oss-20b")]
+    PUSH["Pushover API"]
+  end
 
-  F -->|for visualization| TSNE[t-SNE + Plotly 3D plot]
-  TSNE --> UI
+  UI_APP -->|"startup + every 5 minutes"| F
+  F -->|"loads / stores"| MEM
+  F -->|"opens"| CHROMA
+  F -->|"selects planner"| P
+
+  P -->|"workflow"| W
+  P -->|"autonomous"| A
+
+  W -->|"scan"| S
+  A -->|"tool: scan_the_internet_for_bargains"| S
+  S -->|"structured output"| OAI_SCAN
+
+  W -->|"estimate"| E
+  A -->|"tool: estimate_true_value"| E
+  E -->|"rewrite/normalize"| PP
+  E -->|"specialist pricing"| SA
+  E -->|"RAG + frontier pricing"| FA
+  FA -->|"vector search"| CHROMA
+  FA -->|"LLM price estimate"| OAI_PRICE
+  E -->|"combined estimate"| OP
+
+  W -->|"if discount > threshold"| MSG
+  A -->|"tool: notify_user_of_deal"| MSG
+  MSG -->|"craft copy"| GROQ
+  MSG -->|"send push"| PUSH
 ```
 
 ### Runtime flow (what happens end-to-end)
