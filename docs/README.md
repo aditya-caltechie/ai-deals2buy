@@ -164,7 +164,7 @@ For each shortlisted deal, `EnsembleAgent.price()` does:
 
 ### Vector DB build pipeline (products_vectorstore/)
 
-The vector DB is built by `src/rag/vectorstore.py` (shim remains at `src/agents/rag_vectordb.py`):
+The vector DB is built by `src/rag/vectorstore.py`:
 - downloads an items dataset from HuggingFace (`datasets`)
   - default: `ed-donner/items_lite` (or `items_full`)
 - embeds each item summary with SentenceTransformers `all-MiniLM-L6-v2`
