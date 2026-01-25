@@ -173,9 +173,9 @@ The vector DB is built by `src/rag/vectorstore.py`:
 CLI entrypoints:
 
 ```bash
-python3 src/main.py --build-vectordb
-python3 src/main.py --build-vectordb --full-dataset
-python3 src/main.py --build-vectordb --force-recreate-vectordb
+uv run python src/main.py --build-vectordb
+uv run python src/main.py --build-vectordb --full-dataset
+uv run python src/main.py --build-vectordb --force-recreate-vectordb
 ```
 
 ### Key configuration knobs
