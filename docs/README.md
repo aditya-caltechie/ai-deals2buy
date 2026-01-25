@@ -16,6 +16,10 @@ The app is a periodic **deal-hunting agent system**:
 
 ### High-level architecture (Mermaid)
 
+Rendered image (GitHub-friendly):
+
+![Architecture diagram](architecture.svg)
+
 ```mermaid
 flowchart TD
   %% GitHub Mermaid tip: avoid HTML <br/> in labels; use \n instead.

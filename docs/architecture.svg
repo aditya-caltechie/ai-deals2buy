@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="ai-deals2buy architecture diagram">
+  <defs>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; fill: #111827; }
+      .subtitle { font: 500 13px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; fill: #374151; }
+      .box-title { font: 700 14px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; fill: #111827; }
+      .box-text { font: 500 12px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; fill: #374151; }
+      .group-title { font: 700 12px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; fill: #111827; letter-spacing: 0.2px; }
+      .panel { fill: #F9FAFB; stroke: #E5E7EB; stroke-width: 1.2; rx: 14; }
+      .node { fill: #FFFFFF; stroke: #D1D5DB; stroke-width: 1.2; rx: 10; }
+      .node-accent { fill: #EEF2FF; stroke: #C7D2FE; stroke-width: 1.2; rx: 10; }
+      .node-external { fill: #ECFDF5; stroke: #A7F3D0; stroke-width: 1.2; rx: 10; }
+      .node-storage { fill: #FFFBEB; stroke: #FDE68A; stroke-width: 1.2; rx: 10; }
+      .arrow { stroke: #6B7280; stroke-width: 1.6; fill: none; }
+      .arrow-label { font: 600 11px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; fill: #4B5563; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6B7280"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="720" fill="#FFFFFF"/>
+
+  <text x="40" y="48" class="title">ai-deals2buy  architecture</text>
+  <text x="40" y="72" class="subtitle">Gradio UI ’ DealAgentFramework ’ planner ’ agents ’ notifications (with ChromaDB + Modal + LLM providers)</text>
+
+  <!-- Panels -->
+  <rect x="40" y="100" width="360" height="160" class="panel"/>
+  <text x="56" y="124" class="group-title">USER INTERFACE</text>
+
+  <rect x="40" y="280" width="360" height="390" class="panel"/>
+  <text x="56" y="304" class="group-title">AGENTS</text>
+
+  <rect x="420" y="100" width="360" height="300" class="panel"/>
+  <text x="436" y="124" class="group-title">ORCHESTRATION</text>
+
+  <rect x="420" y="420" width="360" height="250" class="panel"/>
+  <text x="436" y="444" class="group-title">STATE / STORAGE</text>
+
+  <rect x="800" y="100" width="360" height="570" class="panel"/>
+  <text x="816" y="124" class="group-title">EXTERNAL SERVICES / MODELS</text>
+
+  <!-- UI nodes -->
+  <rect x="60" y="145" width="320" height="95" class="node-accent"/>
+  <text x="80" y="175" class="box-title">Gradio UI</text>
+  <text x="80" y="196" class="box-text">src/price_is_right.py</text>
+  <text x="80" y="216" class="box-text">Runs on startup + every 5 minutes</text>
+
+  <!-- Orchestration nodes -->
+  <rect x="440" y="145" width="320" height="95" class="node"/>
+  <text x="460" y="175" class="box-title">DealAgentFramework</text>
+  <text x="460" y="196" class="box-text">src/deal_agent_framework.py</text>
+  <text x="460" y="216" class="box-text">Loads memory, opens Chroma, selects planner</text>
+
+  <rect x="440" y="260" width="320" height="120" class="node"/>
+  <text x="460" y="290" class="box-title">Planner selection</text>
+  <text x="460" y="311" class="box-text">PLANNER_MODE = workflow | autonomous</text>
+  <text x="460" y="332" class="box-text">Workflow: PlanningAgent</text>
+  <text x="460" y="352" class="box-text">Autonomous: LLM tool-loop</text>
+
+  <!-- Agent nodes (left column) -->
+  <rect x="60" y="330" width="320" height="70" class="node"/>
+  <text x="80" y="360" class="box-title">ScannerAgent</text>
+  <text x="80" y="381" class="box-text">RSS scrape + OpenAI structured outputs</text>
+
+  <rect x="60" y="415" width="320" height="110" class="node"/>
+  <text x="80" y="445" class="box-title">EnsembleAgent</text>
+  <text x="80" y="466" class="box-text">Preprocess ’ Specialist ’ Frontier(RAG) ’ combine</text>
+  <text x="80" y="487" class="box-text">0.8 * frontier + 0.2 * specialist</text>
+  <text x="80" y="508" class="box-text">src/agents/ensemble_agent.py</text>
+
+  <rect x="60" y="540" width="320" height="70" class="node"/>
+  <text x="80" y="570" class="box-title">MessagingAgent</text>
+  <text x="80" y="591" class="box-text">Craft copy (LLM) ’ send push (Pushover)</text>
+
+  <!-- Storage nodes -->
+  <rect x="440" y="470" width="320" height="80" class="node-storage"/>
+  <text x="460" y="500" class="box-title">memory.json</text>
+  <text x="460" y="521" class="box-text">Persisted opportunities (dedupe)</text>
+
+  <rect x="440" y="565" width="320" height="90" class="node-storage"/>
+  <text x="460" y="595" class="box-title">ChromaDB (Persistent)</text>
+  <text x="460" y="616" class="box-text">products_vectorstore/ " collection: products</text>
+  <text x="460" y="637" class="box-text">Used for RAG + UI 3D plot</text>
+
+  <!-- External nodes -->
+  <rect x="820" y="145" width="320" height="80" class="node-external"/>
+  <text x="840" y="175" class="box-title">OpenAI  deal selection</text>
+  <text x="840" y="196" class="box-text">model: gpt-5-mini (ScannerAgent)</text>
+
+  <rect x="820" y="240" width="320" height="95" class="node-external"/>
+  <text x="840" y="270" class="box-title">OpenAI  frontier pricing (RAG)</text>
+  <text x="840" y="291" class="box-text">model: gpt-5.1 (FrontierAgent)</text>
+  <text x="840" y="312" class="box-text">Context includes 5 similar products from Chroma</text>
+
+  <rect x="820" y="350" width="320" height="80" class="node-external"/>
+  <text x="840" y="380" class="box-title">Modal  specialist pricing</text>
+  <text x="840" y="401" class="box-text">Fine-tuned Llama 3.2 3B via PEFT</text>
+
+  <rect x="820" y="445" width="320" height="80" class="node-external"/>
+  <text x="840" y="475" class="box-title">Ollama (local)  preprocessing</text>
+  <text x="840" y="496" class="box-text">via LiteLLM " default: ollama/llama3.2</text>
+
+  <rect x="820" y="540" width="320" height="110" class="node-external"/>
+  <text x="840" y="570" class="box-title">Groq + Pushover  notification</text>
+  <text x="840" y="591" class="box-text">Groq via LiteLLM: gpt-oss-20b (copy)</text>
+  <text x="840" y="612" class="box-text">Pushover API: push delivery</text>
+  <text x="840" y="633" class="box-text">src/agents/messaging_agent.py</text>
+
+  <!-- Arrows -->
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 380 192 L 440 192"/>
+  <text x="388" y="178" class="arrow-label">triggers run</text>
+
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 600 240 L 600 260"/>
+  <text x="612" y="255" class="arrow-label">select planner</text>
+
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 440 310 L 380 365"/>
+  <text x="388" y="330" class="arrow-label">scan</text>
+
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 380 455 L 440 455"/>
+  <text x="392" y="442" class="arrow-label">results</text>
+
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 380 470 L 820 185"/>
+  <text x="540" y="250" class="arrow-label">LLM (structured)</text>
+
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 380 470 L 820 285"/>
+  <text x="560" y="325" class="arrow-label">RAG pricing</text>
+
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 380 470 L 820 390"/>
+  <text x="520" y="410" class="arrow-label">specialist</text>
+
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 380 470 L 820 485"/>
+  <text x="520" y="485" class="arrow-label">preprocess</text>
+
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 380 575 L 820 595"/>
+  <text x="560" y="585" class="arrow-label">notify</text>
+
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 600 240 L 600 470"/>
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 600 470 L 600 470"/>
+
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 600 240 L 600 510"/>
+  <text x="612" y="505" class="arrow-label">persist</text>
+
+  <path class="arrow" marker-end="url(#arrowhead)" d="M 600 240 L 600 605"/>
+  <text x="612" y="600" class="arrow-label">vector db</text>
+</svg>
+
