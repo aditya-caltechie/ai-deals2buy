@@ -20,8 +20,6 @@ Rendered image (GitHub-friendly):
 
 ![Architecture diagram](architecture.svg)
 
-![UI flow diagram](flow.svg)
-
 ```mermaid
 flowchart TD
   %% GitHub Mermaid tip: avoid HTML <br/> in labels; use \n instead.
@@ -106,6 +104,50 @@ The UI also shows:
 - a table of found opportunities (price, estimate, discount, URL)
 - a 3D plot of product embeddings from Chroma (t-SNE projection)
 - streaming logs (reformatted ANSI → HTML)
+
+#### UI runtime flow (Mermaid)
+
+```mermaid
+flowchart TD
+  subgraph UI["Gradio UI (src/ui/app.py)"]
+    UI_LOAD["ui.load(run_with_logging, ...)"]
+    UI_TIMER["gr.Timer.tick(run_with_logging, ...)"]
+    UI_DF["gr.Dataframe (Deals)"]
+    UI_PLOT["gr.Plot (Vectors)\nget_plot() uses DealAgentFramework.get_plot_data()"]
+    UI_LOGS["gr.HTML (Logs)\nhtml_for()"]
+  end
+
+  subgraph APP["App (class App)"]
+    APP_GET["get_agent_framework() (lazy)\nif None -> DealAgentFramework()"]
+    APP_RWL["run_with_logging(initial_log_data)"]
+    APP_WORKER["worker thread\nresult = do_run()"]
+    APP_DO["do_run()\nget_agent_framework().run()"]
+    APP_UPD["update_output(log_data, log_queue, result_queue)\n(generator yields UI updates)"]
+    APP_LOGQ["log_queue\nQueueHandler.emit()"]
+    APP_RESQ["result_queue\nworker puts final table"]
+  end
+
+  subgraph CORE["DealAgentFramework (src/core/framework.py)"]
+    CORE_INIT["init_agents_as_needed()\nselect planner from PLANNER_MODE"]
+    CORE_PLAN["planner.plan(memory)"]
+    CORE_MEM["memory (List[Opportunity])"]
+    CORE_WRITE["MemoryStore.write(memory.json)"]
+  end
+
+  UI_LOAD --> APP_RWL
+  UI_TIMER --> APP_RWL
+
+  APP_RWL --> APP_GET
+  APP_RWL --> APP_LOGQ
+  APP_RWL --> APP_RESQ
+  APP_RWL --> APP_WORKER
+  APP_RWL --> APP_UPD
+
+  APP_WORKER --> APP_DO --> CORE_INIT --> CORE_PLAN --> CORE_MEM --> CORE_WRITE
+
+  APP_LOGQ --> APP_UPD --> UI_LOGS
+  APP_RESQ --> APP_UPD --> UI_DF
+```
 
 #### 3) Framework chooses the planning strategy
 
