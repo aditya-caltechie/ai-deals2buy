@@ -44,13 +44,13 @@
   <!-- UI nodes -->
   <rect x="60" y="145" width="320" height="95" class="node-accent"/>
   <text x="80" y="175" class="box-title">Gradio UI</text>
-  <text x="80" y="196" class="box-text">src/price_is_right.py</text>
+  <text x="80" y="196" class="box-text">src/ui/app.py</text>
   <text x="80" y="216" class="box-text">Runs on startup + every 5 minutes</text>
 
   <!-- Orchestration nodes -->
   <rect x="440" y="145" width="320" height="95" class="node"/>
   <text x="460" y="175" class="box-title">DealAgentFramework</text>
-  <text x="460" y="196" class="box-text">src/deal_agent_framework.py</text>
+  <text x="460" y="196" class="box-text">src/core/framework.py</text>
   <text x="460" y="216" class="box-text">Loads memory, opens Chroma, selects planner</text>
 
   <rect x="440" y="260" width="320" height="120" class="node"/>
@@ -68,7 +68,7 @@
   <text x="80" y="445" class="box-title">EnsembleAgent</text>
   <text x="80" y="466" class="box-text">Preprocess -&gt; Specialist -&gt; Frontier (RAG) -&gt; combine</text>
   <text x="80" y="487" class="box-text">0.8 * frontier + 0.2 * specialist</text>
-  <text x="80" y="508" class="box-text">src/agents/ensemble_agent.py</text>
+  <text x="80" y="508" class="box-text">src/agents/pricing/ensemble_agent.py</text>
 
   <rect x="60" y="540" width="320" height="70" class="node"/>
   <text x="80" y="570" class="box-title">MessagingAgent</text>
@@ -106,7 +106,7 @@
   <text x="840" y="570" class="box-title">Groq + Pushover - notification</text>
   <text x="840" y="591" class="box-text">Groq via LiteLLM: gpt-oss-20b (copy)</text>
   <text x="840" y="612" class="box-text">Pushover API: push delivery</text>
-  <text x="840" y="633" class="box-text">src/agents/messaging_agent.py</text>
+  <text x="840" y="633" class="box-text">src/agents/messaging/messaging_agent.py</text>
 
   <!-- Arrows -->
   <path class="arrow" marker-end="url(#arrowhead)" d="M 380 192 L 440 192"/>
