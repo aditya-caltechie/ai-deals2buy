@@ -25,11 +25,11 @@ flowchart TD
   %% GitHub Mermaid tip: avoid HTML <br/> in labels; use \n instead.
 
   subgraph UI["User Interface"]
-    UI_APP["Gradio UI\nsrc/price_is_right.py"]
+    UI_APP["Gradio UI\nsrc/ui/app.py"]
   end
 
   subgraph CORE["Orchestration"]
-    F["DealAgentFramework\nsrc/deal_agent_framework.py"]
+    F["DealAgentFramework\nsrc/core/framework.py"]
     P{"PLANNER_MODE\nworkflow | autonomous"}
   end
 
@@ -39,14 +39,14 @@ flowchart TD
   end
 
   subgraph AGENTS["Agents"]
-    W["PlanningAgent\nsrc/agents/planning_agent.py"]
-    A["AutonomousPlanningAgent\nsrc/agents/autonomous_planning_agent.py"]
-    S["ScannerAgent\nsrc/agents/scanner_agent.py"]
-    E["EnsembleAgent\nsrc/agents/ensemble_agent.py"]
+    W["PlanningAgent\nsrc/agents/planners/planning_agent.py"]
+    A["AutonomousPlanningAgent\nsrc/agents/planners/autonomous_planning_agent.py"]
+    S["ScannerAgent\nsrc/agents/scanners/scanner_agent.py"]
+    E["EnsembleAgent\nsrc/agents/pricing/ensemble_agent.py"]
     PP["Preprocessor (LiteLLM)\ndefault: ollama/llama3.2"]
     SA["SpecialistAgent (Modal)\nfine-tuned Llama 3.2 3B"]
     FA["FrontierAgent (RAG + OpenAI)\nmodel: gpt-5.1"]
-    MSG["MessagingAgent\nsrc/agents/messaging_agent.py"]
+    MSG["MessagingAgent\nsrc/agents/messaging/messaging_agent.py"]
     OP["Opportunity\n(deal + estimate + discount)"]
   end
 
@@ -96,7 +96,7 @@ flowchart TD
 
 #### 2) UI triggers a run
 
-- `src/price_is_right.py` sets a timer:
+- `src/ui/app.py` sets a timer:
   - **startup**: run immediately when the UI loads
   - **periodic**: every 300 seconds (5 minutes)
 
@@ -107,7 +107,7 @@ The UI also shows:
 
 #### 3) Framework chooses the planning strategy
 
-- `src/deal_agent_framework.py` decides planner based on `PLANNER_MODE`:
+- `src/core/framework.py` decides planner based on `PLANNER_MODE`:
   - **workflow**: `PlanningAgent`
   - **autonomous (default)**: `AutonomousPlanningAgent` (LLM tool-calling loop)
 
@@ -136,7 +136,7 @@ For each shortlisted deal, `EnsembleAgent.price()` does:
    - `SpecialistAgent` calls a Modal class `pricer-service.Pricer`
    - the Modal service loads a **fine-tuned** model:
      - **base**: `meta-llama/Llama-3.2-3B`
-     - **fine-tune**: PEFT adapter `ed-donner/price-2025-11-28_18.47.07` (pinned revision in `src/modalApp/pricer_service*.py`)
+     - **fine-tune**: PEFT adapter `ed-donner/price-2025-11-28_18.47.07` (pinned revision in `src/services/modal/pricer_service*.py`)
 
 3) **Frontier estimate (RAG + OpenAI)**
    - `FrontierAgent` embeds the rewritten text with SentenceTransformers (`all-MiniLM-L6-v2`)
@@ -164,7 +164,7 @@ For each shortlisted deal, `EnsembleAgent.price()` does:
 
 ### Vector DB build pipeline (products_vectorstore/)
 
-The vector DB is built by `src/agents/rag_vectordb.py`:
+The vector DB is built by `src/rag/vectorstore.py` (shim remains at `src/agents/rag_vectordb.py`):
 - downloads an items dataset from HuggingFace (`datasets`)
   - default: `ed-donner/items_lite` (or `items_full`)
 - embeds each item summary with SentenceTransformers `all-MiniLM-L6-v2`
@@ -189,12 +189,68 @@ python3 src/main.py --build-vectordb --force-recreate-vectordb
 ### Where to look in code
 
 - `src/main.py`: entrypoint and CLI flags (`--build-vectordb`, `--full-dataset`, `--force-recreate-vectordb`)
-- `src/price_is_right.py`: Gradio UI + periodic execution + plots
-- `src/deal_agent_framework.py`: planner selection + memory + vector DB + t-SNE plot data
-- `src/agents/scanner_agent.py`: RSS → OpenAI structured deal selection (`gpt-5-mini`)
-- `src/agents/ensemble_agent.py`: preprocessing + specialist + frontier combination
-- `src/agents/frontier_agent.py`: RAG over Chroma + OpenAI price estimate (`gpt-5.1`)
-- `src/agents/specialist_agent.py`: Modal RPC to fine-tuned Llama service
-- `src/agents/messaging_agent.py`: Groq message crafting + Pushover send
-- `src/agents/rag_vectordb.py`: builds the Chroma vector store from HF datasets
+- `src/ui/app.py`: Gradio UI + periodic execution + plots
+- `src/core/framework.py`: planner selection + memory + vector DB + t-SNE plot data
+- `src/agents/scanners/scanner_agent.py`: RSS → OpenAI structured deal selection (`gpt-5-mini`)
+- `src/agents/pricing/ensemble_agent.py`: preprocessing + specialist + frontier combination
+- `src/agents/pricing/frontier_agent.py`: RAG over Chroma + OpenAI price estimate (`gpt-5.1`)
+- `src/agents/pricing/specialist_agent.py`: Modal RPC to fine-tuned Llama service
+- `src/agents/messaging/messaging_agent.py`: Groq message crafting + Pushover send
+- `src/rag/vectorstore.py`: builds the Chroma vector store from HF datasets
+
+### Directory structure and responsibilities (current)
+
+This is the “ideal” AI-project layout used in `src/`. Some legacy modules remain as **compatibility shims** to avoid breaking old imports; shims are thin re-exports and can be deleted later once you’ve updated all downstream references.
+
+- **`src/main.py`**: CLI entrypoint. Loads env, optionally builds vector DB, launches Gradio UI.
+
+- **`src/ui/`**: Gradio UI layer.
+  - `src/ui/app.py`: UI + timer-driven execution + table/logs/plot rendering.
+  - `src/price_is_right.py`: **shim** for backward compatibility (`App` re-export).
+
+- **`src/core/`**: orchestration + app framework.
+  - `src/core/framework.py`: `DealAgentFramework` (planner selection, Chroma wiring, run loop).
+  - `src/core/memory.py`: `MemoryStore` (read/write/reset `memory.json`).
+  - `src/deal_agent_framework.py`: **shim** (`DealAgentFramework` re-export).
+
+- **`src/agents/`**: agent implementations (grouped by capability).
+  - `src/agents/base.py`: base `Agent` logging utilities.
+  - `src/agents/planners/`: workflow vs LLM tool-loop planners.
+  - `src/agents/scanners/`: deal ingestion + LLM deal selection.
+  - `src/agents/pricing/`: ensemble + frontier (RAG) + specialist (Modal) + optional NN estimator.
+  - `src/agents/messaging/`: message crafting + notification orchestration.
+  - `src/agents/preprocessing/`: text rewrite/normalization prior to pricing.
+  - `src/agents/*.py` (flat files): mostly **shims** re-exporting the new grouped modules (kept for compatibility).
+
+- **`src/data/`**: Pydantic models + dataset utilities.
+  - `src/data/models.py`: `Deal`, `DealSelection`, `Opportunity`, `Item`, etc.
+
+- **`src/scraping/`**: pure ingestion utilities (no model calls).
+  - `src/scraping/rss_scraper.py`: DealNews RSS + deal page fetching into `ScrapedDeal`.
+  - `src/scraping/html_parser.py`: BeautifulSoup helpers for cleaning RSS snippets.
+
+- **`src/rag/`**: retrieval and vector store utilities.
+  - `src/rag/vectorstore.py`: build/populate Chroma vector DB from HF datasets (used by `--build-vectordb`).
+  - `src/rag/embeddings.py`: SentenceTransformer embedding helper/caching.
+  - `src/rag/retriever.py`: Chroma retriever wrapper (used by `FrontierAgent`).
+
+- **`src/models/`**: ML model definitions and evaluation utilities (non-agent).
+  - `src/models/neural_network.py`: deep neural network + inference helper.
+  - `src/models/evaluator.py`: evaluation utilities / plotting for model accuracy.
+
+- **`src/services/`**: integrations with external services/providers (infra).
+  - `src/services/modal/`: Modal app code for hosting the fine-tuned specialist model.
+  - `src/services/notifications/pushover.py`: Pushover client wrapper.
+
+- **`src/config/`**: centralized config/constants.
+  - `src/config/settings.py`: env-backed `Settings` (lightweight).
+  - `src/config/constants.py`: project constants (categories/colors).
+
+- **`src/utils/`**: shared utilities.
+  - `src/utils/logging.py`: ANSI → HTML log formatting used by UI.
+  - `src/utils/visualization.py`: t-SNE plot-data computation helper.
+
+- **`src/notebooks/`**: place for exploration notebooks.
+  - `src/notebooks/README.md`: notes + suggested `git mv` for the legacy notebook.
+  - `src/agents/results.ipynb`: legacy notebook location (planned to move here).
 
