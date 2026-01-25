@@ -20,6 +20,8 @@ Rendered image (GitHub-friendly):
 
 ![Architecture diagram](architecture.svg)
 
+![UI flow diagram](flow.svg)
+
 ```mermaid
 flowchart TD
   %% GitHub Mermaid tip: avoid HTML <br/> in labels; use \n instead.
