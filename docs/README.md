@@ -20,7 +20,7 @@ Rendered image (GitHub-friendly):
 
 ![Architecture diagram](architecture.svg)
 
-![Agent workflow](Agent%20workflow.svg)
+![Agent workflow](agent_workflow.svg)
 
 ```mermaid
 flowchart TD
