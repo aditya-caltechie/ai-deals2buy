@@ -2,7 +2,7 @@
 
 This doc describes what happens when you run the app, from UI startup to notifications and persistence.
 
-![End-to-end workflow](docs/agent_workflow.svg)
+![End-to-end workflow](images/agent_workflow.svg)
 
 ### E2E flow (as implemented)
 

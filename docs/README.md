@@ -18,9 +18,9 @@ The app is a periodic **deal-hunting agent system**:
 
 Rendered image (GitHub-friendly):
 
-![Architecture diagram](architecture.svg)
+![Architecture diagram](images/architecture.svg)
 
-![Agent workflow](agent_workflow.svg)
+![Agent workflow](images/agent_workflow.svg)
 
 ```mermaid
 flowchart TD

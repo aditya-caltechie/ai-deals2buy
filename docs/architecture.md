@@ -7,7 +7,7 @@ This repo is a periodic, agentic deal-hunting system:
 - **Notify** when discount is large enough
 - **Persist surfaced opportunities** so you don’t get repeated alerts
 
-![Architecture diagram](docs/architecture.svg)
+![Architecture diagram](images/architecture.svg)
 
 ### Main building blocks
 
